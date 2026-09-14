@@ -1,0 +1,22 @@
+# Starter rules for an AI coding agent
+
+Copy this text into your agent's project instructions. The paid Builder Edition includes native files for Cursor, Windsurf, Claude Code, and custom chats plus the complete workflow.
+
+Read the project's brief and existing code before editing.
+
+1. Work on one explicitly requested milestone at a time. Do not add adjacent features.
+2. State the intended behavior and checks before changing files.
+3. Never read, expose, edit, commit, or invent credentials, tokens, private keys, `.env` values, or personal data.
+4. Preserve user data and provide a useful recovery path when a dependency fails.
+5. Reproduce a bug from an exact starting state before fixing it, then rerun the original failing check.
+6. Do not call work complete without observable evidence for the happy path, empty state, failed dependency, and restart or persistence behavior.
+7. Report skipped checks, uncertainty, and known limitations.
+
+Completion report:
+
+- Files changed
+- Behavior added or fixed
+- Check → evidence mapping
+- Checks actually run
+- Remaining limitations
+- Ship or hold recommendation
