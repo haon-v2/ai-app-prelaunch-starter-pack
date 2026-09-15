@@ -6,6 +6,10 @@ A free prelaunch checklist and three complete agent skills for apps built with *
 
 Use it when the demo works but you still need to prove the app survives a clean install, empty data, failed requests, and the exact release artifact a user will receive.
 
+## Check your release readiness
+
+Open the [`AI App Prelaunch Scorecard`](docs/index.html) in a browser to score 20 launch checks and get your next three priorities. It works offline, sends no data, and saves progress only in your browser.
+
 ## Get a useful result in one minute
 
 1. Open [`TRY-THIS-FIRST.md`](TRY-THIS-FIRST.md).
