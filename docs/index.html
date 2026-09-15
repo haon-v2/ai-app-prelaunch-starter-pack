@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A private, browser-based launch readiness scorecard for AI-built apps.">
+  <title>AI App Prelaunch Scorecard</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090c0e;
+      --panel: #101519;
+      --panel-2: #141b20;
+      --line: #263138;
+      --text: #eef6f5;
+      --muted: #91a0a5;
+      --accent: #35e3cf;
+      --accent-soft: #133b38;
+      --warn: #ffc766;
+      --danger: #ff6f6f;
+      --good: #6ee7a8;
+      --radius: 8px;
+      --shadow: 0 20px 70px rgba(0, 0, 0, .38);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        linear-gradient(rgba(53, 227, 207, .028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(53, 227, 207, .028) 1px, transparent 1px),
+        var(--bg);
+      background-size: 32px 32px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    button, a, input { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; }
+    button:focus-visible, a:focus-visible, input:focus-visible {
+      outline: 3px solid rgba(53, 227, 207, .42);
+      outline-offset: 3px;
+    }
+
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 68px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font: 700 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .brand-mark {
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(53, 227, 207, .8);
+    }
+    .privacy {
+      color: var(--muted);
+      font: 600 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, .6fr);
+      gap: 64px;
+      align-items: end;
+      padding: 70px 0 44px;
+    }
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--accent);
+      font: 700 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: .96;
+      letter-spacing: -.065em;
+    }
+    .hero-copy {
+      max-width: 620px;
+      margin: 24px 0 0;
+      color: #b8c4c7;
+      font-size: clamp(17px, 2vw, 20px);
+    }
+    .hero-meta {
+      display: grid;
+      gap: 1px;
+      border: 1px solid var(--line);
+      background: var(--line);
+      box-shadow: var(--shadow);
+    }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 16px;
+      background: var(--panel);
+      font: 600 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .meta-row span:first-child { color: var(--muted); }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 80px;
+    }
+    .checklist, .report {
+      border: 1px solid var(--line);
+      background: rgba(16, 21, 25, .96);
+      box-shadow: var(--shadow);
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .panel-title {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.02em;
+    }
+    .panel-note { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .reset {
+      align-self: center;
+      border: 0;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .reset:hover { color: var(--text); }
+
+    .group { border-bottom: 1px solid var(--line); }
+    .group:last-child { border-bottom: 0; }
+    .group-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 22px 10px;
+      color: var(--muted);
+      font: 700 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .group-number { color: var(--accent); }
+    .check-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      padding: 13px 22px;
+      cursor: pointer;
+      transition: background-color 140ms ease;
+    }
+    .check-row:hover { background: rgba(53, 227, 207, .04); }
+    .check-row input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .box {
+      display: grid;
+      place-items: center;
+      width: 23px;
+      height: 23px;
+      margin-top: 1px;
+      border: 1px solid #516067;
+      border-radius: 4px;
+      color: #07100f;
+      font-weight: 900;
+      transition: background-color 140ms ease, border-color 140ms ease, transform 140ms ease;
+    }
+    .check-row input:focus-visible + .box { outline: 3px solid rgba(53, 227, 207, .42); outline-offset: 3px; }
+    .check-row input:checked + .box { background: var(--accent); border-color: var(--accent); transform: scale(.94); }
+    .check-row input:checked + .box::after { content: "✓"; }
+    .check-copy { color: #dbe5e5; font-size: 15px; }
+    .check-row input:checked ~ .check-copy { color: #819095; text-decoration: line-through; text-decoration-color: #536267; }
+    .risk {
+      margin-top: 3px;
+      padding: 4px 6px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--muted);
+      font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .risk.critical { color: #ff9a9a; border-color: rgba(255, 111, 111, .35); }
+
+    .report { position: sticky; top: 18px; overflow: hidden; }
+    .score-wrap { padding: 24px 22px 20px; }
+    .score-label {
+      color: var(--muted);
+      font: 700 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .score-line { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-top: 8px; }
+    .score { font-size: 64px; font-weight: 800; line-height: 1; letter-spacing: -.065em; }
+    .score-denom { color: var(--muted); font-size: 20px; }
+    .status {
+      padding: 7px 9px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      color: var(--danger);
+      font: 800 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .meter { height: 7px; margin-top: 18px; background: #222c31; overflow: hidden; }
+    .meter-fill { width: 0; height: 100%; background: var(--accent); transition: width 240ms ease; }
+    .summary { margin: 16px 0 0; color: #b4c0c2; font-size: 14px; }
+    .priority-box { padding: 19px 22px; border-top: 1px solid var(--line); }
+    .priority-title { margin: 0 0 12px; font: 700 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: .08em; }
+    .priority-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .priority-list li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; color: #bdc8ca; font-size: 13px; }
+    .priority-list .n { color: var(--accent); font: 700 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .empty-priority { margin: 0; color: var(--muted); font-size: 13px; }
+    .actions { display: grid; gap: 10px; padding: 20px 22px 22px; border-top: 1px solid var(--line); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 12px 14px;
+      border: 1px solid var(--accent);
+      border-radius: 5px;
+      background: var(--accent);
+      color: #06100f;
+      font-weight: 800;
+      text-align: center;
+      text-decoration: none;
+    }
+    .button:hover { background: #72f4e5; }
+    .button.secondary { background: transparent; color: var(--text); border-color: #45535a; }
+    .button.secondary:hover { border-color: var(--accent); color: var(--accent); }
+    button.button { width: 100%; cursor: pointer; }
+    .button.utility { background: #182126; color: var(--text); border-color: #45535a; }
+    .button.utility:hover { background: #202c31; border-color: var(--accent); }
+    .offer { margin: 2px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 22px 0 34px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .footer a { text-underline-offset: 3px; }
+
+    @media (max-width: 880px) {
+      .hero { grid-template-columns: 1fr; gap: 32px; padding-top: 50px; }
+      .workspace { grid-template-columns: 1fr; }
+      .report { position: static; order: -1; }
+      .hero-meta { max-width: 520px; }
+    }
+    @media (max-width: 560px) {
+      .shell { width: min(100% - 20px, 1180px); }
+      .topbar { min-height: 60px; }
+      .privacy { max-width: 150px; text-align: right; }
+      .hero { padding: 42px 2px 30px; }
+      h1 { font-size: 45px; }
+      .panel-head, .check-row, .group-head, .score-wrap, .priority-box, .actions { padding-left: 16px; padding-right: 16px; }
+      .check-row { grid-template-columns: 26px 1fr; }
+      .risk { grid-column: 2; justify-self: start; }
+      .footer { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span> haon-v2 / launch lab</div>
+    <div class="privacy">private by default · saved on this device</div>
+  </header>
+
+  <main class="shell">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">AI app prelaunch scorecard</p>
+        <h1 id="page-title">Your demo works. Can the release survive?</h1>
+        <p class="hero-copy">Run the checks most likely to expose an AI-built app outside the happy path. Get a readiness score and the next three things to prove.</p>
+      </div>
+      <div class="hero-meta" aria-label="Scorecard details">
+        <div class="meta-row"><span>Checks</span><strong>20</strong></div>
+        <div class="meta-row"><span>Time</span><strong>4 minutes</strong></div>
+        <div class="meta-row"><span>Data sent</span><strong>none</strong></div>
+      </div>
+    </section>
+
+    <section class="workspace" aria-label="Launch readiness assessment">
+      <div class="checklist">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Mark only what you can prove</h2>
+            <p class="panel-note">A confident agent response is not evidence.</p>
+          </div>
+          <button class="reset" type="button" id="reset">reset</button>
+        </div>
+
+        <div id="checks"></div>
+      </div>
+
+      <aside class="report" aria-live="polite" aria-label="Readiness report">
+        <div class="score-wrap">
+          <div class="score-label">Release readiness</div>
+          <div class="score-line">
+            <div><span class="score" id="score">0</span><span class="score-denom">/100</span></div>
+            <div class="status" id="status">hold</div>
+          </div>
+          <div class="meter" role="progressbar" aria-label="Release readiness score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="meter-fill" id="meter"></div>
+          </div>
+          <p class="summary" id="summary">Start with the critical checks. One hidden dependency can turn a clean demo into a failed launch.</p>
+        </div>
+        <div class="priority-box">
+          <h3 class="priority-title">Prove next</h3>
+          <ol class="priority-list" id="priorities"></ol>
+        </div>
+        <div class="actions">
+          <button class="button utility" type="button" id="copy-priorities">Copy my open checks for my coding agent</button>
+          <a class="button" href="https://haonv2.gumroad.com/l/vibe-coding-app-launch-kit?offer_code=LAUNCH25&amp;wanted=true&amp;utm_source=github&amp;utm_medium=scorecard&amp;utm_campaign=v14_launch" target="_blank" rel="noopener">Get the full 24-skill workflow — $29.25</a>
+          <a class="button secondary" href="https://haonv2.gumroad.com/l/ai-app-prelaunch-checklist?utm_source=github&amp;utm_medium=scorecard&amp;utm_campaign=v14_launch" target="_blank" rel="noopener">Download the 3 free skills</a>
+          <p class="offer">Usually $39. LAUNCH25 is limited to the first 10 buyers.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <span>No account. No analytics. Your progress stays in this browser.</span>
+    <a href="https://github.com/haon-v2/ai-app-prelaunch-starter-pack">view the source files</a>
+  </footer>
+
+  <script>
+    const groups = [
+      {
+        name: "Core flow",
+        checks: [
+          ["fresh-flow", "A brand-new user can complete the main task from a fresh launch.", true],
+          ["visible-feedback", "Every action gives visible feedback and prevents accidental repeats.", false],
+          ["empty-state", "Empty data, loading, offline, denied permission, and errors are understandable.", false],
+          ["persistence", "Promised work survives closing and reopening the app.", false]
+        ]
+      },
+      {
+        name: "Failure paths",
+        checks: [
+          ["failed-request", "A failed or interrupted request can be retried without corrupting state.", true],
+          ["new-account", "A new account with no saved data reaches a useful first result.", true],
+          ["duplicate-action", "Duplicate clicks, submits, and webhooks do not create duplicate outcomes.", false],
+          ["destructive", "Destructive actions require confirmation or have a clear recovery path.", false]
+        ]
+      },
+      {
+        name: "Evidence",
+        checks: [
+          ["acceptance", "Each promised feature has an observable acceptance check.", true],
+          ["reproduce", "Known failures have exact, repeatable steps.", false],
+          ["outside-dev", "The final build was tested outside the development environment.", true],
+          ["recorded", "Screenshots, recordings, or test results support the release decision.", false]
+        ]
+      },
+      {
+        name: "Trust",
+        checks: [
+          ["secrets", "No credentials, tokens, personal data, or private URLs appear in the release.", true],
+          ["permissions", "Permissions and network access are limited to what the product needs.", false],
+          ["auth-payment", "Authorization and payment results are verified on the server side.", true],
+          ["data-policy", "Storage, deletion, export, and recovery match what users are told.", false]
+        ]
+      },
+      {
+        name: "Packaging",
+        checks: [
+          ["clean-install", "The exact final artifact installs and opens on a clean device or environment.", true],
+          ["version", "Version numbers match across the app, metadata, notes, and filenames.", false],
+          ["upgrade", "Replacing an earlier version preserves or migrates user data correctly.", false],
+          ["download", "The customer download is the intended file and opens correctly.", true]
+        ]
+      }
+    ];
+
+    const storageKey = "haon-v2-prelaunch-scorecard-v1";
+    const checksRoot = document.querySelector("#checks");
+    const scoreEl = document.querySelector("#score");
+    const statusEl = document.querySelector("#status");
+    const summaryEl = document.querySelector("#summary");
+    const meterEl = document.querySelector("#meter");
+    const progressEl = document.querySelector('[role="progressbar"]');
+    const priorityEl = document.querySelector("#priorities");
+    const copyButton = document.querySelector("#copy-priorities");
+    let saved = {};
+    let currentOpen = [];
+
+    try { saved = JSON.parse(localStorage.getItem(storageKey)) || {}; } catch (_) { saved = {}; }
+
+    groups.forEach((group, groupIndex) => {
+      const section = document.createElement("section");
+      section.className = "group";
+      section.innerHTML = `<div class="group-head"><span class="group-number">0${groupIndex + 1}</span><span>${group.name}</span></div>`;
+      group.checks.forEach(([id, label, critical]) => {
+        const row = document.createElement("label");
+        row.className = "check-row";
+        row.innerHTML = `<input type="checkbox" data-id="${id}" ${saved[id] ? "checked" : ""}><span class="box" aria-hidden="true"></span><span class="check-copy">${label}</span><span class="risk ${critical ? "critical" : ""}">${critical ? "critical" : "check"}</span>`;
+        section.appendChild(row);
+      });
+      checksRoot.appendChild(section);
+    });
+
+    const allChecks = [...document.querySelectorAll('input[type="checkbox"]')];
+    const flatChecks = groups.flatMap(group => group.checks);
+
+    function update() {
+      const done = allChecks.filter(check => check.checked);
+      const score = Math.round((done.length / allChecks.length) * 100);
+      const criticalOpen = flatChecks.filter(([, , critical]) => critical).filter(([id]) => !document.querySelector(`[data-id="${id}"]`).checked);
+      const open = flatChecks.filter(([id]) => !document.querySelector(`[data-id="${id}"]`).checked);
+      currentOpen = open;
+      const priority = [...criticalOpen, ...open.filter(item => !item[2])].slice(0, 3);
+
+      scoreEl.textContent = score;
+      meterEl.style.width = `${score}%`;
+      progressEl.setAttribute("aria-valuenow", score);
+
+      let status = "hold";
+      let color = "var(--danger)";
+      let summary = `${open.length} checks remain, including ${criticalOpen.length} critical ${criticalOpen.length === 1 ? "check" : "checks"}. Do not ship on confidence alone.`;
+      if (score >= 70 && criticalOpen.length > 0) {
+        status = "conditional";
+        color = "var(--warn)";
+        summary = `Most of the surface is covered, but ${criticalOpen.length} critical ${criticalOpen.length === 1 ? "path still needs" : "paths still need"} proof.`;
+      }
+      if (score >= 80 && criticalOpen.length === 0) {
+        status = "ready to review";
+        color = "var(--good)";
+        summary = `${done.length} checks have evidence. Review the remaining ${open.length} and record the final release decision.`;
+      }
+      if (score === 100) {
+        status = "evidence complete";
+        color = "var(--good)";
+        summary = "All 20 checks are marked. Confirm the evidence is current and tied to the exact artifact you will ship.";
+      }
+
+      statusEl.textContent = status;
+      statusEl.style.color = color;
+      summaryEl.textContent = summary;
+      priorityEl.innerHTML = priority.length
+        ? priority.map(([, label], index) => `<li><span class="n">0${index + 1}</span><span>${label}</span></li>`).join("")
+        : '<li class="empty-priority">No open checks. Record the version, artifact, known limitations, and release decision.</li>';
+
+      const state = Object.fromEntries(allChecks.map(check => [check.dataset.id, check.checked]));
+      try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch (_) {}
+    }
+
+    allChecks.forEach(check => check.addEventListener("change", update));
+    copyButton.addEventListener("click", async () => {
+      const openList = currentOpen.map(([, label], index) => `${index + 1}. ${label}`).join("\n");
+      const prompt = `Audit my app against these open prelaunch checks. Work through one check at a time. For each check, tell me what you inspected, run the smallest useful verification, and return PASS, FAIL, or BLOCKED with observable evidence. Do not claim success from code inspection alone.\n\n${openList || "All scorecard checks are marked. Re-run the evidence against the exact artifact I plan to ship."}`;
+      try {
+        await navigator.clipboard.writeText(prompt);
+        copyButton.textContent = "Copied — paste it into your coding agent";
+        window.setTimeout(() => { copyButton.textContent = "Copy my open checks for my coding agent"; }, 2400);
+      } catch (_) {
+        copyButton.textContent = "Copy failed — use the three priorities above";
+      }
+    });
+    document.querySelector("#reset").addEventListener("click", () => {
+      allChecks.forEach(check => { check.checked = false; });
+      update();
+      allChecks[0].focus();
+    });
+    update();
+  </script>
+</body>
+</html>
